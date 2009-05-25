@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>MachineLearning::DecisionTrees</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+  </head>
+  <body>
+    <div class="pod">
+      <!-- INDEX START -->
+      <h3>Index</h3>
+      <ul>
+        <li><a href="#NAME">NAME</a></li>
+        <li><a href="#SYNOPSIS">SYNOPSIS</a></li>
+        <li><a href="#DESCRIPTION">DESCRIPTION</a>
+          <ul>
+            <li><a href="#Pruning">Pruning</a></li>
+            <li><a href="#Input_fields_and_output_fields">Input fields and
+              output fields</a></li>
+            <li><a href="#Input_data_types">Input data types</a></li>
+          </ul>
+        </li>
+        <li><a href="#PREREQUISITES">PREREQUISITES</a></li>
+        <li><a href="#METHODS">METHODS</a></li>
+        <li><a href="#AUTHOR">AUTHOR</a></li>
+        <li><a href="#COPYRIGHT_AND_LICENSE">COPYRIGHT AND LICENSE</a></li>
+      </ul>
+      <hr/>
+      <!-- INDEX END -->
+      <h1 id="NAME">NAME</h1>
+      <div id="NAME_CONTENT">
+        <p>MachineLearning::DecisionTrees &#8211; create, test, print out,
+          store, and employ decision trees</p>
+      </div>
+      <h1 id="SYNOPSIS">SYNOPSIS</h1>
+      <div id="SYNOPSIS_CONTENT">
+        <pre>  use MachineLearning::DecisionTrees;
+  my $grove = MachineLearning::DecisionTrees-&gt;new({
+    &quot;InputFieldNames&quot; =&gt; [&quot;Input1&quot;, &quot;Input2&quot;, &quot;Input3&quot;],
+    &quot;OutputFieldNames&quot; =&gt; [&quot;Output1&quot;, &quot;Output2&quot;],
+    &quot;InputDataTypes&quot; =&gt; {
+      &quot;Input1&quot; =&gt; [&quot;male&quot;, &quot;female&quot;],
+      &quot;Input2&quot; =&gt; &quot;number&quot;,
+      &quot;Input3&quot; =&gt; &quot;special_number&quot;},
+    &quot;TrainingData&quot; =&gt; $training_data_file_path});
+  my $all_is_well = $grove-&gt;get_success();
+  my $message = $grove-&gt;get_message();
+  my $saved_ok = $grove-&gt;save($file_path);
+  my $grove = MachineLearning::DecisionTrees-&gt;open($file_path);
+  my $tree_printout = $grove-&gt;print_out($tree_name);
+  my $tree_test_results = $grove-&gt;test({
+    &quot;TreeName&quot; =&gt; $tree_name,
+    &quot;ValidationData&quot; =&gt; $validation_data_file_path,
+    &quot;NodeList&quot; =&gt; \@selected_node_numbers});
+  my $completed_ok = $grove-&gt;employ({
+    &quot;TreeName&quot; =&gt; $tree_name,
+    &quot;TargetData&quot; =&gt; $writable_data_file_path,
+    &quot;NodeList&quot; =&gt; \@selected_node_numbers});
+</pre>
+      </div>
+      <h1 id="DESCRIPTION">DESCRIPTION</h1>
+      <div id="DESCRIPTION_CONTENT">
+        <p>This module defines a package for creating a
+          MachineLearning::DecisionTrees object.</p>
+        <p>Decision trees as implemented by the
+          MachineLearning::DecisionTrees module favor quality over quantity.
+          That is, they are optimized to find the highest quality
+          predictions for a single output value without undue regard to how
+          many data records (or <i>instances</i>) get screened out in the
+          process. This approach is highly useful for many applications. For
+          example, out of many potential financial investments, you might
+          want to identify a small group that have unusually good prospects
+          for success.</p>
+        <p>The output values supported by the MachineLearning::DecisionTrees
+          module are <code>1</code> and <code>0</code>, and the accuracy of
+          the results is important only for the <code>1</code> values. When
+          choosing the attribute on which to split a node, the criterion is
+          maximization of the highest resulting ones percentage. (In the
+          case of a tie, the highest quantity of records breaks the tie.)
+          <strong>NOTE:</strong> The selection of the first three attributes
+          (resulting in the children, grandchildren, and great-grandchildren
+          of the root node) is performed organically.  That is, the best out
+          of all possible permutations of attributes for the first three
+          slots "wins".  Subsequent attributes are chosen individually.</p>
+        <p>Decision trees as implemented by the
+          MachineLearning::DecisionTrees module come in groves. A grove is
+          one or more decision trees, all built from the same data file. The
+          data file used to build (or <i>train</i>) a grove contains one or
+          more output fields, and each output field corresponds to one tree.
+          When printed out, a decision tree identifies itself using the name
+          of the output field for which it was built.</p>
+        <p>A decision tree is made up of nodes, starting with a root node
+          (which typically appears at the top in graphical representations,
+          highlighting the fact that trees in nature are upside down :-) and
+          branching from there via child nodes. During the building,
+          testing, or employment of a decision tree, each parent node
+          divides data records associated with it among its children
+          according to each record&#39;s value for a particular input field
+          (or <i>attribute</i>). A node with no children is a <i>leaf
+          node</i> and terminates a particular path through the tree.</p>
+        <p>A <i>path</i> through a decision tree always starts at the root
+          node and ends when one of the following conditions occurs during
+          tree creation, which comprises <i>training</i> and <i>pruning</i>
+          phases:</p>
+        <ul>
+          <li>During training, there are no further attributes available
+            with which to generate children from the current node.</li>
+          <li>There is only one record associated with the current node.
+            <strong>NOTE:</strong> The training algorithm never creates a
+            child node that does not have any records associated with it or
+            that does not produce any &quot;1&quot; results.</li>
+          <li>The pruning process has determined that application of the
+            remaining attributes to the current branch does not improve its
+            performance.</li>
+        </ul>
+      </div>
+      <h2 id="Pruning">Pruning</h2>
+      <div id="Pruning_CONTENT">
+        <p>After a tree has been built, it gets <i>pruned</i> from the
+          bottom up. The pruning algorithm removes any leaf node if the
+          records associated with one of the node's ancestors (other than
+          the root node) have an equal or higher percentage of ones for the
+          output field on which the tree is based than do the records
+          associated with the leaf node. Any nodes that become leaf nodes
+          during the pruning process are themselves subject to pruning.</p>
+        <p>Once a tree has been pruned, the remaining leaf nodes are sorted
+          by quality (defined as the magnitude of the ones percentage for
+          the records associated with the leaf node). In a printout of the
+          tree, the leaf nodes appear in order by quality (highest to
+          lowest) together with the exact ones percentage for each leaf node
+          based on the training data. For each leaf node, the printout also
+          gives the number of associated training records and the path
+          through the tree.</p>
+      </div>
+      <h2 id="Input_fields_and_output_fields">Input fields and output fields</h2>
+      <div id="Input_fields_and_output_fields_CONTE">
+        <p>The data used to build, test, or employ decision trees must
+          include at least two <i>input fields</i>, which are used as
+          attributes by nodes during spawning.</p>
+        <p>The data must also include one or more <i>output fields</i> in
+          which each value is either a <code>1</code> or a <code>0</code>.
+          (The output values can be blank when the data is passed to the
+          <code>employ()</code> method.) For example, there might be a field
+          for whether you enjoy certain TV shows that have been on in the
+          past and another field for whether your spouse enjoys them. You
+          could create a grove of two decision trees from this data: one
+          tree to select shows that you would most likely enjoy out of the
+          new television offerings starting up in the fall, and another tree
+          to select shows that your spouse would most likely enjoy. (With
+          luck, there will be some that you <i>both</i> enjoy!)</p>
+      </div>
+      <h2 id="Input_data_types">Input data types</h2>
+      <div id="Input_data_types_CONTENT">
+        <p>Each input field uses one of three data types:
+          <code>enumeration</code>, <code>number</code>, or
+          <code>special_number</code>.</p>
+        <p>An <code>enumeration</code> type comprises a list of two or more
+          possible unique text values (for example, <code>male</code> and
+          <code>female</code> for a Gender field).</p>
+        <p>A <code>number</code> type comprises decimal numbers. The
+          tree-building algorithm divides the values in a number field into
+          the following categories after statistically analyzing all the
+          values for that field in the data set. (In the
+          <strong>Criteria</strong> column below, <code>m</code> is the mean
+          and <code>d</code> is the population standard deviation.)</p>
+        <pre>    Category           Criteria
+    --------           --------
+
+    abnormally_low     Less than m - 2d
+
+    low                Greater than or equal to m - 2d, and less than
+                       m - d
+
+    medium             Greater than or equal to m - d, and less than
+                       or equal to m + d (that is, within one standard
+                       deviation of the mean)
+
+    high               Greater than m + d, and less than or equal to
+                       m + 2d
+
+    abnormally_high    Greater than m + 2d
+</pre>
+        <p>A <code>special_number</code> type is a decimal number for which
+          the sign and the absolute value have separate significance. For
+          example, the sign might indicate direction (up or down) while the
+          absolute value indicates momentum, or the sign might indicate
+          approval versus disapproval while the absolute value indicates the
+          intensity of the response. The categories for this type are
+          <code>abnormally_strong_negative</code>,
+          <code>strong_negative</code>, <code>medium_negative</code>,
+          <code>weak_negative</code>, <code>abnormally_weak_negative</code>,
+          <code>abnormally_weak_positive_or_zero</code>,
+          <code>weak_positive</code>, <code>medium_positive</code>,
+          <code>strong_positive</code>, and
+          <code>abnormally_strong_positive</code>.</p>
+        <p>The categories into which the algorithm places numeric inputs act
+          as enumerated values.</p>
+      </div>
+      <h1 id="PREREQUISITES">PREREQUISITES</h1>
+      <div id="PREREQUISITES_CONTENT">
+        <p>To use this module, you must have the MachineLearning module
+          installed.</p>
+      </div>
+      <h1 id="METHODS">METHODS</h1>
+      <div id="METHODS_CONTENT">
+        <dl>
+          <dt>MachineLearning::DecisionTrees-&gt;new($args);</dt>
+          <dd>
+            <p>This is the constructor.</p>
+            <p>In addition to the class-name argument, which is passed
+              automatically when you use the
+              <code>MachineLearning::DecisionTrees-&gt;new()</code> syntax,
+              the constructor takes a reference to a hash containing the
+              following keys:</p>
+            <pre>  InputFieldNames
+  OutputFieldNames
+  InputDataTypes
+  TrainingData
+</pre>
+            <p>The values associated with the InputFieldNames and
+              OutputFieldNames keys must each be a reference to an array of
+              field names. All field names (for input and output fields
+              combined) must be unique. Field names must not contain commas
+              or line-break characters. There must be at least two input
+              field names and at least one output field name.</p>
+            <p>The value associated with the InputDataTypes key must be a
+              reference to a hash in which the keys are input field names
+              (which must match those specified by the InputFieldNames
+              argument) and each value indicates the data type for the
+              corresponding input field. If the value is an array reference,
+              the field has a data type of <code>enumeration</code> and the
+              array must contain two or more strings, all unique,
+              representing the possible values for the input field.
+              Otherwise, the value indicating the data type must be the
+              string <code>number</code> or the string
+              <code>special_number</code>.</p>
+            <p>The value associated with the TrainingData key must be the
+              path to a file containing CSV-format training data. The first
+              line in the file must contain field names, which must match
+              the field names specified by the InputFieldNames and
+              OutputFieldNames arguments.</p>
+            <p>The constructor returns a reference to a
+              MachineLearning::DecisionTrees object (a <i>grove</i>), which
+              is implemented internally as a hash. All functionality is
+              exposed through methods.</p>
+            <p>If the constructor receives a valid hash reference providing
+              all required information, the <code>get_success()</code>
+              instance method returns true (<code>1</code>) and the
+              <code>get_message()</code> instance method returns an empty
+              string; otherwise, <code>get_success()</code> returns false
+              (<code>0</code>) and <code>get_message()</code> returns a
+              string containing an error message.</p>
+          </dd>
+          <dt>$grove-&gt;get_success();</dt>
+          <dd>
+            <p>This returns true (<code>1</code>) if the grove was
+              initialized successfully; otherwise, it returns false
+              (<code>0</code>).</p>
+          </dd>
+          <dt>$grove-&gt;get_message();</dt>
+          <dd>
+            <p>When <code>get_success()</code> returns true
+              (<code>1</code>), this returns an empty string. When
+              <code>get_success()</code> returns false (<code>0</code>),
+              <code>get_message()</code> returns an error message.</p>
+          </dd>
+          <dt>$grove-&gt;save($file_path);</dt>
+          <dd>
+            <p>This method saves (<i>serializes</i>) the grove to the
+              specified file.</p>
+            <p>If the serialization and file-writing operations succeed,
+              this method returns true (<code>1</code>); otherwise, the
+              method sets the <code>_success</code> field to false
+              (<code>0</code>), places an error message in the
+              <code>_message</code> field, and returns false
+              (<code>0</code>).</p>
+          </dd>
+          <dt>MachineLearning::DecisionTrees-&gt;open($file_path);</dt>
+          <dd>
+            <p>This method returns a new MachinLearning::DecisionTrees
+              object (a <i>grove</i>) created by restoring such an object
+              from the specified file. If the file-reading and
+              deserialization operations succeed, the resulting object&#39;s
+              <code>get_success()</code> method returns true
+              (<code>1</code>) and the <code>get_message()</code> method
+              returns an empty string. Otherwise, the <code>open()</code>
+              method creates and returns a new object that has a false value
+              in the <code>_success</code> field and an error message in the
+              <code>_message</code> field.</p>
+          </dd>
+          <dt>$grove-&gt;print_out($tree_name);</dt>
+          <dd>
+            <p>This method prints out a particular tree within the grove.
+              The name that you provide to the method is the name of the
+              output field corresponding to the tree that you want to study.</p>
+            <p>The printout lists each leaf node in order by quality
+              (highest to lowest). For each leaf node, the printout gives a
+              number with which you can specify the node when you call the
+              <code>test()</code> method or the <code>employ()</code>
+              method, the ones percentage for the node after training, the
+              number of records associated with the node after training, and
+              the path through the tree leading to the node.</p>
+            <p>This method returns a string.</p>
+          </dd>
+          <dt>$grove-&gt;test($args);</dt>
+          <dd>
+            <p>This method takes a reference to a hash with the following
+              fields:</p>
+            <pre>    TreeName &#8211; The name of the tree, which is the same as the name
+    of the output field for which the tree was built.
+
+    ValidationData &#8211; The path to a file containing CSV-format
+    validation data.  This must have the same fields and data types
+    as the training data used to create the grove.
+
+    NodeList &#8211; A reference to an array containing the numbers of the
+    nodes that you want to use in the test to indicate &quot;1&quot; results.
+</pre>
+            <p>This method returns a string giving the test results, which
+              comprise the number of records in the test data, the number of
+              records assigned a &quot;1&quot; result during the test, and
+              the accuracy (as a percentage) of those &quot;1&quot; results
+              based on the validation data.</p>
+          </dd>
+          <dt>$grove-&gt;employ($args);</dt>
+          <dd>
+            <p>This method takes a reference to a hash with the following
+              fields:</p>
+            <pre>    TreeName &#8211; The name of the tree, which is the same as the name
+    of the output field for which the tree was built.
+
+    TargetData &#8211; The path to a file containing CSV-format data.
+    This must have the same fields and data types as the training
+    data used to create the grove.
+
+    NodeList &#8211; A reference to an array containing the numbers of the
+    nodes that you want to use to generate &quot;1&quot; results.
+</pre>
+            <p>This method divides the records from the specified data file
+              among the leaf nodes of the specified tree, assigning a
+              &quot;1&quot; result to any record associated with one of the
+              nodes given by the <code>NodeList</code> argument. For those
+              records, the method places a <code>1</code> in the output
+              field associated with the tree. For the remaining records, the
+              method places a <code>0</code> in that field.</p>
+            <p>The data file that you provide to this method must contain an
+              output field with the same name as the tree; however, the
+              values in that field can be blank. If an output value is not
+              blank, it must be a <code>1</code> or a <code>0</code> to
+              conform to the data type defined for output fields. This
+              method populates or overwrites the values in the output field
+              with new results.</p>
+            <p>If everything goes OK, this method returns true
+              (<code>1</code>); otherwise, the method sets the
+              <code>_success</code> field to false (<code>0</code>), places
+              an error message in the <code>_message</code> field, and
+              returns false (<code>0</code>).</p>
+          </dd>
+        </dl>
+      </div>
+      <h1 id="AUTHOR">AUTHOR</h1>
+      <div id="AUTHOR_CONTENT">
+        <p>Benjamin Fitch, &lt;blernflerkl@yahoo.com&gt;</p>
+      </div>
+      <h1 id="COPYRIGHT_AND_LICENSE">COPYRIGHT AND LICENSE</h1>
+      <div id="COPYRIGHT_AND_LICENSE_CONTENT">
+        <p>Copyright 2009 by Benjamin Fitch</p>
+        <p>This library is free software; you can redistribute it and/or
+          modify it under the same terms as Perl itself.</p>
+      </div>
+    </div>
+  </body>
+</html>

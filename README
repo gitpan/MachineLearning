@@ -1,0 +1,53 @@
+MachineLearning version 1.01
+
+DESCRIPTION
+
+    This distribution includes a base module (MachineLearning.pm) and the
+    following three modules for your direct use:
+
+        NeuralNetwork.pm - Implements a neural network that optimizes its
+        output for quality of results (predictions) without regard to
+        quantity of results (beyond a configurable minimum).
+
+          NOTE:  This module uses simulated annealing (implemented by
+          SimulatedAnnealing.pm--see below) for optimization of the
+          weights and thresholds.
+
+        DecisionTrees.pm - Implements a "grove" of decision trees built on
+        a single data source (a file containing "training" data).  As with
+        NeuralNetwork.pm, the output is optimized for quality at the expense
+        of quantity.
+
+        SimulatedAnnealing.pm - Implements simulated annealing for
+        optimization of a collection of numbers with predefined ranges.
+
+INSTALLATION
+
+    To install the four modules included in this distribution, perform the
+    following simple steps:
+
+      1.  Copy MachineLearning.pm to a directory in @INC (for example,
+          "/etc/perl" or "D:\Perl\site\lib").
+
+      2.  Copy the "MachineLearning" directory (containing the files
+          SimulatedAnnealing.pm, NeuralNetwork.pm, and DecisionTrees.pm)
+          to a directory in @INC (for example, "/etc/perl" or
+          "D:\Perl\site\lib").
+
+      3.  Check that you now have a directory structure like the following:
+
+              /etc/perl/MachineLearning.pm
+              /etc/perl/MachineLearning/DecisionTrees.pm
+              /etc/perl/MachineLearning/NeuralNetwork.pm
+              /etc/perl/MachineLearning/SimulatedAnnealing.pm
+
+AUTHOR
+
+    Benjamin Fitch <blernflerkl@yahoo.com>
+
+COPYRIGHT AND LICENSE
+
+    Copyright 2009 by Benjamin Fitch
+
+    This library is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.

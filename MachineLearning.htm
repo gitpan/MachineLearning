@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>MachineLearning</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+  </head>
+  <body>
+    <div class="pod">
+      <!-- INDEX START -->
+      <h3>Index</h3>
+      <ul>
+        <li><a href="#NAME">NAME</a></li>
+        <li><a href="#SYNOPSIS">SYNOPSIS</a></li>
+        <li><a href="#DESCRIPTION">DESCRIPTION</a></li>
+        <li><a href="#AUTHOR">AUTHOR</a></li>
+        <li><a href="#COPYRIGHT_AND_LICENSE">COPYRIGHT AND LICENSE</a></li>
+      </ul>
+      <hr/>
+      <!-- INDEX END -->
+      <h1 id="NAME">NAME</h1>
+      <div id="NAME_CONTENT">
+        <p>MachineLearning &#8211; base class for MachineLearning objects</p>
+      </div>
+      <h1 id="SYNOPSIS">SYNOPSIS</h1>
+      <div id="SYNOPSIS_CONTENT">
+        <pre>  use base (&quot;MachineLearning&quot;);
+</pre>
+      </div>
+      <h1 id="DESCRIPTION">DESCRIPTION</h1>
+      <div id="DESCRIPTION_CONTENT">
+        <p>This module provides a base class for MachineLearning objects.</p>
+        <p>In addition to the class name passed in automatically when you
+          use the <code>$class-&gt;SUPER::new($args)</code> syntax, the
+          constructor takes a reference to a hash containing the following
+          keys:</p>
+        <pre>  InputFieldNames
+  OutputFieldNames
+</pre>
+        <p>The value corresponding to each of these keys must be a reference
+          to an array of field names. All field names (for input and output
+          fields combined) must be unique. Field names must not contain
+          commas or line-break characters. There must be at least two input
+          field names and at least one output field name.</p>
+        <p>In addition to a base constructor, this super class provides the
+          following fields and instance methods:</p>
+        <pre>  _success
+  _message
+  _input_field_names
+  _output_field_names
+  _parse_data_file()
+  get_success()
+  get_message()
+</pre>
+        <p>This class also provides the following class methods:</p>
+        <pre>  get_mean()
+  get_pop_std_dev()
+  get_samp_std_dev()
+</pre>
+        <p>In addition to the class name passed in automatically, each of
+          these class methods takes a reference to an array and returns the
+          appropriate value (mean, population standard deviation, or sample
+          standard deviation) for the set of numbers stored in the array.
+          When calling one of these functions, make sure that the array
+          contains at least one element and that each element is a number
+          (for example: <code>3.9</code>).</p>
+      </div>
+      <h1 id="AUTHOR">AUTHOR</h1>
+      <div id="AUTHOR_CONTENT">
+        <p>Benjamin Fitch, &lt;blernflerkl@yahoo.com&gt;</p>
+      </div>
+      <h1 id="COPYRIGHT_AND_LICENSE">COPYRIGHT AND LICENSE</h1>
+      <div id="COPYRIGHT_AND_LICENSE_CONTENT">
+        <p>Copyright 2009 by Benjamin Fitch</p>
+        <p>This library is free software; you can redistribute it and/or
+          modify it under the same terms as Perl itself.</p>
+      </div>
+    </div>
+  </body>
+</html>

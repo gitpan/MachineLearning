@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>MachineLearning::SimulatedAnnealing</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+  </head>
+  <body>
+    <div class="pod">
+      <!-- INDEX START -->
+      <h3>Index</h3>
+      <ul>
+        <li><a href="#NAME">NAME</a></li>
+        <li><a href="#SYNOPSIS">SYNOPSIS</a></li>
+        <li><a href="#DESCRIPTION">DESCRIPTION</a></li>
+        <li><a href="#FUNCTIONS">FUNCTIONS</a></li>
+        <li><a href="#AUTHOR">AUTHOR</a></li>
+        <li><a href="#COPYRIGHT_AND_LICENSE">COPYRIGHT AND LICENSE</a></li>
+      </ul>
+      <hr/>
+      <!-- INDEX END -->
+      <h1 id="NAME">NAME</h1>
+      <div id="NAME_CONTENT">
+        <p>MachineLearning::SimulatedAnnealing &#8211; optimize a list of
+          numbers according to a cost function</p>
+      </div>
+      <h1 id="SYNOPSIS">SYNOPSIS</h1>
+      <div id="SYNOPSIS_CONTENT">
+        <pre>  use MachineLearning::SimulatedAnnealing;
+  my $result_array_ref = anneal({
+    &quot;Ranges&quot; =&gt; [ [0, 3], [-1, 4], [-4, 0] ],
+    &quot;CostCalculator&quot; =&gt; $cost_calculator_coderef,
+    &quot;CyclesPerTemperature&quot; =&gt; 10_000});
+</pre>
+      </div>
+      <h1 id="DESCRIPTION">DESCRIPTION</h1>
+      <div id="DESCRIPTION_CONTENT">
+        <p>This module exports a single function, <code>anneal()</code>,
+          which performs simulated annealing to optimize a list of numbers
+          that have predefined ranges. The list can be of any size
+          <code>N</code>.</p>
+        <p>In addition to the ranges for the numbers, the
+          <code>anneal()</code> function takes a reference to a cost
+          function that takes a list of size <code>N</code> and returns a
+          number representing a cost to be minimized.</p>
+        <p>The <code>anneal()</code> function also takes as input a positive
+          integer specifying the number of cycles per temperature; that is,
+          the number of randomization cycles to perform at each temperature
+          level during the annealing process. A higher number of cycles per
+          temperature produces more accurate results while increasing the
+          amount of time required for the annealing process to complete.</p>
+      </div>
+      <h1 id="FUNCTIONS">FUNCTIONS</h1>
+      <div id="FUNCTIONS_CONTENT">
+        <dl>
+          <dt>anneal($args_hashref);</dt>
+          <dd>
+            <p>This function takes a reference to a hash with the following
+              fields:</p>
+            <pre>    Ranges &#8211; A reference to an array of pairs of bounds, lower and
+    upper, where a pair is a reference to an array of two real
+    decimal numbers of which the first is less than the second.
+
+    CostCalculator &#8211; A reference to a function that takes a
+    reference to an array of numbers and returns a single number
+    representing a cost to be minimized.  The function must take an
+    input array that is the same size as the Ranges array.
+
+    CyclesPerTemperature &#8211; A positive integer specifying the number
+    of randomization cycles performed at each temperature level.
+
+      NOTE:  Temperature starts at 100% (which means that each
+      number gets randomized within 100% of its specified range) and
+      then gradually decreases.  To randomize a number within a
+      range corresponding to a temperature that is less than 100%,
+      the function calculates the appropriate size for the sub-range
+      and then chooses the exact location for that sub-range (within
+      the total range specified for the number) such that the
+      current value of the number is as close as possible to the
+      sub-range center.
+
+      The temperature, expressed as a percentage, decreases as
+      follows:
+
+          100.000, 95.000, 90.000, 85.000, 80.000, 75.000, 70.000,
+           65.000, 60.000, 55.000, 50.000, 45.000, 40.000, 38.000,
+           36.000, 34.000, 32.000, 30.000, 28.000, 26.000, 24.000,
+           22.000, 20.000, 19.000, 18.000, 17.000, 16.000, 15.000,
+           14.000, 13.000, 12.000, 11.000, 10.000, 09.500, 09.000,
+           08.500, 08.000, 07.500, 07.000, 06.500, 06.000, 05.500,
+           05.000, 04.500, 04.000, 03.800, 03.600, 03.400, 03.200,
+           03.000, 02.800, 02.600, 02.400, 02.200, 02.000, 01.900,
+           01.800, 01.700, 01.600, 01.500, 01.400, 01.300, 01.200,
+           01.100, 01.000, 00.950, 00.900, 00.850, 00.800, 00.750,
+           00.700, 00.650, 00.600, 00.550, 00.500, 00.450, 00.400,
+           00.380, 00.360, 00.340, 00.320, 00.300, 00.280, 00.260,
+           00.240, 00.220, 00.200, 00.190, 00.180, 00.170, 00.160,
+           00.150, 00.140, 00.130, 00.120, 00.110, 00.100, 00.095,
+           00.090, 00.085, 00.080, 00.075, 00.070, 00.065, 00.060,
+           00.055, 00.050, 00.045, 00.040, 00.038, 00.036, 00.034,
+           00.032, 00.030, 00.028, 00.026, 00.024, 00.022, 00.020,
+           00.019, 00.018, 00.017, 00.016, 00.015, 00.014, 00.013,
+           00.012, 00.011, 00.010, 00.009, 00.008, 00.007, 00.006,
+           00.005, 00.004, 00.003, 00.002, 00.001, 00.000
+
+    If the CyclesPerTemperature value is not a positive integer,
+    the anneal() function returns a reference to an empty array.
+</pre>
+            <p>The <code>anneal()</code> function returns a reference to an
+              array of numbers that corresponds to the Ranges array (that
+              is, the output array is the same size as the Ranges array, and
+              each number in the output array is within the range specified
+              by the corresponding element in the Ranges array). The output
+              array is the list of numbers that has the lowest cost
+              (according to the specified cost function) of any of the lists
+              tested during the annealing process.</p>
+          </dd>
+        </dl>
+      </div>
+      <h1 id="AUTHOR">AUTHOR</h1>
+      <div id="AUTHOR_CONTENT">
+        <p>Benjamin Fitch, &lt;blernflerkl@yahoo.com&gt;</p>
+      </div>
+      <h1 id="COPYRIGHT_AND_LICENSE">COPYRIGHT AND LICENSE</h1>
+      <div id="COPYRIGHT_AND_LICENSE_CONTENT">
+        <p>Copyright 2009 by Benjamin Fitch</p>
+        <p>This library is free software; you can redistribute it and/or
+          modify it under the same terms as Perl itself.</p>
+      </div>
+    </div>
+  </body>
+</html>
