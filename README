@@ -1,9 +1,9 @@
-MachineLearning version 1.01
+MachineLearning version 1.02
 
 DESCRIPTION
 
     This distribution includes a base module (MachineLearning.pm) and the
-    following three modules for your direct use:
+    following three modules for direct use:
 
         NeuralNetwork.pm - Implements a neural network that optimizes its
         output for quality of results (predictions) without regard to

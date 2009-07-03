@@ -1,0 +1,12 @@
+Revision history for the module distribution MachineLearning::*
+
+1.01    2009-05-25    original version
+
+1.02    2009-07-02    Improved the implementation of the
+                      "special_number" data type in DecisionTrees.pm
+                      so that zero (0) values are no longer included
+                      in the calculation of the mean and standard
+                      deviation for non-negative numbers.  Instead,
+                      there are now negative values, zero values, and
+                      positive values rather than negative and
+                      non-negative values.

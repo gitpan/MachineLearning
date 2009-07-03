@@ -23,7 +23,7 @@ use Scalar::Util ("looks_like_number");
 use Storable;
 
 # Version:
-our $VERSION = '1.01';
+our $VERSION = '1.02';
 
 # Constants:
 my $POUND     = "#";
@@ -81,7 +81,7 @@ sub new {
     # mean for each number and special_number field:
     my %number_arrays;
     my %negative_special_number_arrays;
-    my %nonnegative_special_number_arrays;
+    my %positive_special_number_arrays;
 
     for my $record (@{ $grove->{"_training_data"} }) {
         for my $field_name (keys %{ $record }) {
@@ -121,9 +121,14 @@ sub new {
                     push @{ $negative_special_number_arrays{$field_name} },
                       $field_value;
                 }
-                elsif ($data_type eq "special_number") {
-                    push @{ $nonnegative_special_number_arrays{
+                elsif ($data_type eq "special_number" && $field_value > 0) {
+                    push @{ $positive_special_number_arrays{
                       $field_name} }, $field_value;
+                }
+                elsif ($data_type eq "special_number"
+                  && $field_value == 0) {
+                    # Do nothing:
+                    1;
                 }
                 else {
                     $grove->{"_success"} = 0;
@@ -138,28 +143,49 @@ sub new {
     } # next $record
 
     for my $input_name (keys %number_arrays) {
-        $grove->{"_standard_deviations"}->{$input_name}->{"Number"}
-          = $grove->SUPER::get_pop_std_dev($number_arrays{$input_name});
-        $grove->{"_means"}->{$input_name}->{"Number"}
-          = $grove->SUPER::get_mean($number_arrays{$input_name});
+        my $array_ref = $number_arrays{$input_name};
+        my $sd = 0;
+        my $mean = 0;
+
+        if (scalar @{ $array_ref }) {
+            $sd = $grove->SUPER::get_pop_std_dev($array_ref);
+            $mean = $grove->SUPER::get_mean($array_ref);
+        } # end if
+
+        $grove->{"_standard_deviations"}->{$input_name}->{"Number"} = $sd;
+        $grove->{"_means"}->{$input_name}->{"Number"} = $mean;
     } # next $input_name
 
     for my $input_name (keys %negative_special_number_arrays) {
+        my $array_ref = $negative_special_number_arrays{$input_name};
+        my $sd = 0;
+        my $mean = 0;
+
+        if (scalar @{ $array_ref }) {
+            $sd = $grove->SUPER::get_pop_std_dev($array_ref);
+            $mean = $grove->SUPER::get_mean($array_ref);
+        } # end if
+
         $grove->{"_standard_deviations"}->{$input_name}->{
-          "NegativeSpecialNumber"} = $grove->SUPER::get_pop_std_dev(
-          $negative_special_number_arrays{$input_name});
-        $grove->{"_means"}->{$input_name}->{"NegativeSpecialNumber"}
-          = $grove->SUPER::get_mean(
-          $negative_special_number_arrays{$input_name});
+          "NegativeSpecialNumber"} = $sd;
+        $grove->{"_means"}->{$input_name}->{
+          "NegativeSpecialNumber"} = $mean;
     } # next $input_name
 
-    for my $input_name (keys %nonnegative_special_number_arrays) {
+    for my $input_name (keys %positive_special_number_arrays) {
+        my $array_ref = $positive_special_number_arrays{$input_name};
+        my $sd = 0;
+        my $mean = 0;
+
+        if (scalar @{ $array_ref }) {
+            $sd = $grove->SUPER::get_pop_std_dev($array_ref);
+            $mean = $grove->SUPER::get_mean($array_ref);
+        } # end if
+
         $grove->{"_standard_deviations"}->{$input_name}->{
-          "NonnegativeSpecialNumber"} = $grove->SUPER::get_pop_std_dev(
-          $nonnegative_special_number_arrays{$input_name});
-        $grove->{"_means"}->{$input_name}->{"NonnegativeSpecialNumber"}
-          = $grove->SUPER::get_mean(
-          $nonnegative_special_number_arrays{$input_name});
+          "PositiveSpecialNumber"} = $sd;
+        $grove->{"_means"}->{$input_name}->{
+          "PositiveSpecialNumber"} = $mean;
     } # next $input_name
 
     # Populate the grove:
@@ -1203,11 +1229,14 @@ sub employ {
               : $field_value <= $mean + (2 * $dev) ? "weak_negative"
               : "abnormally_weak_negative";
         }
+        elsif ($field_value == 0) {
+            $input_value = "abnormally_weak_positive_or_zero";
+        }
         else {
             my $mean = $grove->{"_means"}->{$field_name}->{
-              "NonnegativeSpecialNumber"};
+              "PositiveSpecialNumber"};
             my $dev = $grove->{"_standard_deviations"}->{$field_name}->{
-              "NonnegativeSpecialNumber"};
+              "PositiveSpecialNumber"};
 
             $input_value
               = $field_value < $mean - (2 * $dev)
