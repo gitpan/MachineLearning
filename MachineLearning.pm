@@ -16,7 +16,7 @@ use English "-no_match_vars";
 use List::Util ("first", "sum");
 
 # Version:
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 
 # Constants:
 my $POUND     = "#";

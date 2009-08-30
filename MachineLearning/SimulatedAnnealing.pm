@@ -18,7 +18,7 @@ use Scalar::Util ("looks_like_number");
 use Exporter;
 
 # Version:
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 
 # Exports:
 our @ISA = ("Exporter");

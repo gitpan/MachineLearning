@@ -23,7 +23,7 @@ use Scalar::Util ("looks_like_number");
 use Storable;
 
 # Version:
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 
 # Constants:
 my $POUND     = "#";

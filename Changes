@@ -10,3 +10,5 @@ Revision history for the module distribution MachineLearning::*
                       there are now negative values, zero values, and
                       positive values rather than negative and
                       non-negative values.
+
+1.03    2009-08-30    Added the IntegerAnnealing module.

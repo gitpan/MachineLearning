@@ -26,7 +26,7 @@ use Storable;
 use MachineLearning::SimulatedAnnealing;
 
 # Version:
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 
 # Constants:
 my $POUND     = "#";

@@ -1,0 +1,100 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>MachineLearning::IntegerAnnealing - optimize a list of integers according to a cost function</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+<ul>
+
+	<li><a href="#name">NAME</a></li>
+	<li><a href="#synopsis">SYNOPSIS</a></li>
+	<li><a href="#description">DESCRIPTION</a></li>
+	<li><a href="#functions">FUNCTIONS</a></li>
+	<li><a href="#author">AUTHOR</a></li>
+	<li><a href="#copyright_and_license">COPYRIGHT AND LICENSE</a></li>
+</ul>
+
+<hr />
+<h1><a name="name">NAME</a></h1>
+<p>MachineLearning::IntegerAnnealing &#8211; optimize a list of integers according to a cost function</p>
+<hr />
+<h1><a name="synopsis">SYNOPSIS</a></h1>
+<pre>
+  use MachineLearning::IntegerAnnealing;
+  my $result_array_ref = anneal({
+    &quot;Ranges&quot; =&gt; [ [2, 4], [9, 18], [19, 28], [29, 55] ],
+    &quot;CostCalculator&quot; =&gt; $cost_calculator_coderef,
+    &quot;CyclesPerTemperature&quot; =&gt; 1_000});</pre>
+<hr />
+<h1><a name="description">DESCRIPTION</a></h1>
+<p>This module exports a single function, <a href="#item_anneal"><code>anneal()</code></a>, which performs simulated
+annealing to optimize a list of integers that have predefined ranges.  The
+list can be of any size <code>N</code>.</p>
+<p>In addition to the ranges for the integers, the <a href="#item_anneal"><code>anneal()</code></a> function takes
+a reference to a cost function that takes a reference to an array with <code>N</code>
+elements and returns a number representing a cost to be minimized.  The
+returned number does not have to be an integer.</p>
+<p>The <a href="#item_anneal"><code>anneal()</code></a> function also takes as input a positive integer specifying
+the number of cycles per temperature; that is, the number of randomization
+cycles to perform at each temperature level during the annealing process.
+A higher number of cycles per temperature produces more accurate results
+while increasing the amount of time required for the annealing process
+to complete.</p>
+<hr />
+<h1><a name="functions">FUNCTIONS</a></h1>
+<dl>
+<dt><strong><a name="item_anneal">anneal($args_hashref);</a></strong></dt>
+
+<dd>
+<p>This function takes a reference to a hash with the following fields:</p>
+<pre>
+    Ranges - A reference to an array of pairs of bounds, lower and
+    upper, where a pair is a reference to an array of two integers
+    of which the first is less than the second.</pre>
+<pre>
+    CostCalculator - A reference to a function that takes a
+    reference to an array of integers and returns a single number
+    representing a cost to be minimized.  The function must accept
+    a reference to an input array that is the same size as the
+    Ranges array.</pre>
+<pre>
+      NOTE:  The returned number does not have to be an integer.</pre>
+<pre>
+    CyclesPerTemperature - A positive integer specifying the number
+    of randomization cycles performed at each temperature level.</pre>
+<pre>
+      NOTE:  Temperature starts at the size of the largest range
+      (which means that each integer gets randomized within 100% of
+      its specified range) and then gradually decreases.  Each
+      temperature reduction multiplies the temperature by 96% and
+      then rounds that result down to the nearest integer.</pre>
+<pre>
+    If the CyclesPerTemperature value is not a positive integer,
+    the anneal() function returns a reference to an empty array.</pre>
+<p>The <a href="#item_anneal"><code>anneal()</code></a> function returns a reference to an array of integers that
+corresponds to the Ranges array (that is, the output array is the same size
+as the Ranges array, and each integer in the output array is within the
+range indicated by the corresponding element in the Ranges array).  The
+output array is the list of integers that has the lowest cost (according to
+the specified cost function) of any of the lists tested during the annealing
+process.</p>
+</dd>
+</dl>
+<hr />
+<h1><a name="author">AUTHOR</a></h1>
+<p>Benjamin Fitch, &lt;<a href="mailto:blernflerkl@yahoo.com">blernflerkl@yahoo.com</a>&gt;</p>
+<hr />
+<h1><a name="copyright_and_license">COPYRIGHT AND LICENSE</a></h1>
+<p>Copyright 2009 by Benjamin Fitch</p>
+<p>This library is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.</p>
+
+</body>
+
+</html>
